@@ -38,28 +38,42 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "My Favorite",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: theme.appBarTheme.foregroundColor ?? Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: Colors.blue.shade700,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor:
+        theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
+        iconTheme: IconThemeData(
+          color: theme.appBarTheme.foregroundColor ?? Colors.white,
+        ),
       ),
       body: _favorites.isEmpty
-          ? const Center(
+          ? Center(
         child: Text(
           "There are no favorite channels yet.",
-          style: TextStyle(color: Colors.black54),
+          style: TextStyle(
+            color: isDark ? Colors.white60 : Colors.black54,
+            fontSize: 16,
+          ),
         ),
       )
           : Padding(
         padding: const EdgeInsets.all(8.0),
         child: GridView.builder(
           itemCount: _favorites.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,

@@ -19,34 +19,49 @@ class SearchFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final backgroundColor = theme.scaffoldBackgroundColor;
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
+
     final screenWidth = MediaQuery.of(context).size.width;
     const horizontalPadding = 6.0;
-    final TextEditingController dropdownSearchController = TextEditingController();
+    final TextEditingController dropdownSearchController =
+    TextEditingController();
     const double buttonHeight = 48;
 
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
+      color: backgroundColor,
+      padding: const EdgeInsets.symmetric(
+          horizontal: horizontalPadding, vertical: 8),
       child: Row(
         children: [
           Expanded(
             flex: 4,
             child: TextField(
+              style: TextStyle(color: textColor),
               decoration: InputDecoration(
                 hintText: "Search channel...",
-                prefixIcon: const Icon(Icons.search),
+                hintStyle: TextStyle(
+                    color: isDark ? Colors.white54 : Colors.grey.shade600),
+                prefixIcon: Icon(Icons.search,
+                    color: isDark ? Colors.white70 : Colors.grey.shade700),
+                filled: true,
+                fillColor: cardColor,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(3),
+                  borderSide:
+                  BorderSide(color: Colors.grey.shade400, width: 0.8),
                 ),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+                contentPadding:
+                const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
               ),
               onChanged: onSearchChanged,
             ),
           ),
-
           const SizedBox(width: 6),
-
           Expanded(
             flex: 2,
             child: DropdownButtonHideUnderline(
@@ -60,7 +75,7 @@ class SearchFilterBar extends StatelessWidget {
                     child: Text(
                       group,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: 14, color: textColor),
                     ),
                   ),
                 )
@@ -68,44 +83,45 @@ class SearchFilterBar extends StatelessWidget {
                 onChanged: (value) {
                   if (value != null) onGroupChanged(value);
                 },
-
                 buttonStyleData: ButtonStyleData(
                   height: buttonHeight,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400),
+                    color: cardColor,
+                    border:
+                    Border.all(color: Colors.grey.shade400, width: 0.8),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
-
-                iconStyleData: const IconStyleData(
-                  icon: Icon(Icons.arrow_drop_down),
+                iconStyleData: IconStyleData(
+                  icon: Icon(Icons.arrow_drop_down,
+                      color:
+                      isDark ? Colors.white70 : Colors.grey.shade700),
                   iconSize: 24,
                 ),
-
                 dropdownStyleData: DropdownStyleData(
                   width: screenWidth,
                   maxHeight: 500,
                   offset: const Offset(0, 56),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(3),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black26,
+                        color:
+                        isDark ? Colors.black54 : Colors.black26,
                         blurRadius: 6,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 6),
                 ),
-
                 menuItemStyleData: const MenuItemStyleData(
                   height: 42,
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 ),
-
                 dropdownSearchData: DropdownSearchData(
                   searchController: dropdownSearchController,
                   searchInnerWidgetHeight: 50,
@@ -113,14 +129,25 @@ class SearchFilterBar extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     child: TextField(
                       controller: dropdownSearchController,
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
                         hintText: 'Search Group...',
-                        prefixIcon: const Icon(Icons.search, size: 18),
+                        hintStyle: TextStyle(
+                            color:
+                            isDark ? Colors.white54 : Colors.grey.shade600),
+                        prefixIcon: Icon(Icons.search,
+                            size: 18,
+                            color: isDark
+                                ? Colors.white70
+                                : Colors.grey.shade700),
+                        filled: true,
+                        fillColor: cardColor,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(3),
                         ),
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
                       ),
                     ),
                   ),
@@ -130,7 +157,6 @@ class SearchFilterBar extends StatelessWidget {
                         .contains(searchValue.toLowerCase());
                   },
                 ),
-
                 onMenuStateChange: (isOpen) {
                   if (!isOpen) dropdownSearchController.clear();
                 },

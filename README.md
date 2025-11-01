@@ -23,5 +23,7 @@ flutter build apk
 - Play / Pause
 - Refresh Data
 - Picture in Picture
+- Themes Manager
+- Update Checker
 
 <img src="./SCREENSHOOT/ss.png" />

@@ -18,18 +18,23 @@ class ChannelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
+    final isDark = theme.brightness == Brightness.dark;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(6),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(6),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Colors.black12,
+              color: isDark ? Colors.black54 : Colors.black12,
               blurRadius: 4,
-              offset: Offset(0, 2),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -53,27 +58,27 @@ class ChannelCard extends StatelessWidget {
                     width: double.infinity,
                     height: 80,
                     fit: BoxFit.contain,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, __) => SizedBox(
                       width: double.infinity,
                       height: 80,
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.tv,
-                          size: 50, color: Colors.white70),
+                      child: const Center(
+                        child: Icon(Icons.tv, size: 48, color: Colors.grey),
+                      ),
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, __, ___) => SizedBox(
                       width: double.infinity,
                       height: 80,
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.tv,
-                          size: 50, color: Colors.white70),
+                      child: const Center(
+                        child: Icon(Icons.tv, size: 48, color: Colors.grey),
+                      ),
                     ),
                   )
-                      : Container(
+                      : SizedBox(
                     width: double.infinity,
                     height: 80,
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.tv,
-                        size: 50, color: Colors.white70),
+                    child: const Center(
+                      child: Icon(Icons.tv, size: 48, color: Colors.grey),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -84,12 +89,22 @@ class ChannelCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.black38,
-                        borderRadius: BorderRadius.circular(20),
+                        color: isDark
+                            ? Colors.black.withValues(alpha: 0.4)
+                            : Colors.white.withValues(alpha: 0.7),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.15),
+                            blurRadius: 3,
+                          ),
+                        ],
                       ),
                       child: Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? Colors.redAccent : Colors.white,
+                        color: isFavorite
+                            ? Colors.redAccent
+                            : (isDark ? Colors.white : Colors.black87),
                         size: 18,
                       ),
                     ),
@@ -97,7 +112,7 @@ class ChannelCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Text(
@@ -105,7 +120,8 @@ class ChannelCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
+                  color: textColor,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),

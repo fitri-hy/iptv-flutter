@@ -5,11 +5,13 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/m3u_service.dart';
 import '../services/constants.dart';
+import '../services/update_checker.dart';
 import '../models/channel.dart';
 import 'player_screen.dart';
 import 'favorite_screen.dart';
 import '../widgets/search_filter_bar.dart';
 import '../widgets/channel_card.dart';
+import '../widgets/theme_selector.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,6 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _setPortraitOrientation();
     _loadChannels();
     _loadFavorites();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UpdateChecker.checkForUpdate(context);
+    });
   }
 
   void _setPortraitOrientation() {
@@ -102,48 +107,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.blue.shade700,
         title: const Text(
           "IPTV",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            color: Colors.white,
             onPressed: _reloadChannels,
-          ),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            color: Colors.white,
-            onPressed: () async {
-              final Uri url = Uri.parse('https://github.com/fitri-hy');
-              if (await canLaunchUrl(url)) {
-                await launchUrl(
-                  url,
-                  mode: LaunchMode.externalApplication,
-                );
-              } else {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Could not launch URL')),
-                );
-              }
-            },
+            tooltip: "Reload Channels",
           ),
           IconButton(
             icon: const Icon(Icons.favorite),
-            color: Colors.white,
+            tooltip: "Favorites",
             onPressed: () async {
-              final favChannels = _channels
-                  .where((ch) => _favoriteIds.contains(ch.url))
-                  .toList();
+              final favChannels =
+              _channels.where((ch) => _favoriteIds.contains(ch.url)).toList();
               await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -155,6 +135,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
               _loadFavorites();
+            },
+          ),
+          const ThemeSelector(),
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            tooltip: "About Developer",
+            onPressed: () async {
+              final Uri url = Uri.parse('https://github.com/fitri-hy');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              } else {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Could not launch URL')),
+                );
+              }
             },
           ),
         ],
@@ -174,12 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: filtered.isEmpty
-                      ? const Center(
-                    child: Text(
-                      "Channel Not Found.",
-                      style: TextStyle(color: Colors.black54),
-                    ),
-                  )
+                      ? const Center(child: Text("Channel Not Found."))
                       : GridView.builder(
                     itemCount: filtered.length,
                     gridDelegate:
@@ -212,12 +203,9 @@ class _HomeScreenState extends State<HomeScreen> {
           if (_loading)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 child: const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 3,
-                  ),
+                  child: CircularProgressIndicator(color: Colors.white),
                 ),
               ),
             ),
