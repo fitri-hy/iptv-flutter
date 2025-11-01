@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:pip/pip.dart';
 import '../models/channel.dart';
 
 class PlayerScreen extends StatefulWidget {
@@ -15,12 +20,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
   late VideoPlayerController _controller;
   bool _ready = false;
   bool _loading = true;
+  bool _isInPip = false;
+  Timer? _timeoutTimer;
+
+  final Pip _pip = Pip();
 
   @override
   void initState() {
     super.initState();
     _enterFullScreen();
     _initializeVideo();
+    _startTimeoutCheck();
+    _setupPip();
   }
 
   void _enterFullScreen() {
@@ -39,8 +50,40 @@ class _PlayerScreenState extends State<PlayerScreen> {
           _loading = false;
         });
         _controller.play();
+        if (Platform.isAndroid || Platform.isIOS) {
+          WakelockPlus.enable();
+        }
       })
+      ..addListener(_videoListener)
       ..setLooping(true);
+  }
+
+  void _videoListener() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      if (_controller.value.isPlaying) {
+        WakelockPlus.enable();
+      } else {
+        WakelockPlus.disable();
+      }
+    }
+  }
+
+  void _startTimeoutCheck() {
+    _timeoutTimer = Timer(const Duration(seconds: 10), () {
+      if (!_ready) {
+        Fluttertoast.showToast(
+          msg: "Channel cannot be reached or is offline.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.black87,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        Future.delayed(const Duration(seconds: 5), () {
+          if (mounted) Navigator.pop(context);
+        });
+      }
+    });
   }
 
   Future<void> _refreshVideo() async {
@@ -51,10 +94,42 @@ class _PlayerScreenState extends State<PlayerScreen> {
     await _controller.pause();
     await _controller.dispose();
     _initializeVideo();
+    _startTimeoutCheck();
+  }
+
+  Future<void> _setupPip() async {
+    final options = PipOptions(
+      autoEnterEnabled: false,
+      aspectRatioX: 16,
+      aspectRatioY: 9,
+      controlStyle: 0,
+    );
+
+    await _pip.setup(options);
+
+    await _pip.registerStateChangedObserver(
+      PipStateChangedObserver(onPipStateChanged: (state, error) {
+        setState(() {
+          _isInPip = state == PipState.pipStateStarted;
+        });
+      }),
+    );
+  }
+
+  Future<void> enterPip() async {
+    if (await _pip.isSupported() && !_isInPip) {
+      await _pip.start();
+    }
   }
 
   @override
   void dispose() {
+    _timeoutTimer?.cancel();
+    _controller.removeListener(_videoListener);
+    if (Platform.isAndroid || Platform.isIOS) {
+      WakelockPlus.disable();
+    }
+    _pip.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -97,7 +172,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   ),
                 ),
               ),
-
             if (!_ready || _loading)
               Positioned.fill(
                 child: Container(
@@ -110,10 +184,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   ),
                 ),
               ),
-
             if (_ready && !_controller.value.isPlaying && !_loading)
               const Center(
                 child: Icon(Icons.play_arrow, size: 80, color: Colors.white70),
+              ),
+
+            if (_ready && !_isInPip)
+              Positioned(
+                bottom: 20,
+                right: 20,
+                child: FloatingActionButton(
+                  backgroundColor: Colors.black54,
+                  onPressed: enterPip,
+                  child: const Icon(Icons.picture_in_picture_alt),
+                ),
               ),
           ],
         ),

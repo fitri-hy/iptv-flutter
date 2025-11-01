@@ -13,4 +13,15 @@ flutter pub get
 flutter build apk
 ```
 
+## Feature
+
+- Search channel
+- Search group
+- Favorites channel
+- Timeout channel ready
+- Screen stays on is playing.
+- Play / Pause
+- Refresh Data
+- Picture in Picture
+
 <img src="./SCREENSHOOT/ss.png" />
