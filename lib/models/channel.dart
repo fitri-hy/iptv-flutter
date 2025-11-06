@@ -4,6 +4,7 @@ class Channel {
   final String logo;
   final String group;
   final String id;
+  final String country;
 
   Channel({
     required this.name,
@@ -11,5 +12,6 @@ class Channel {
     required this.logo,
     required this.group,
     required this.id,
+    required this.country,
   });
 }

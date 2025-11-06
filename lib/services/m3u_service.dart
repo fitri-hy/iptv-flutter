@@ -37,12 +37,22 @@ class M3UService {
           group = "Others";
         }
 
+        String country = "Unknown";
+        if (id.contains('.')) {
+          final parts = id.split('.');
+          if (parts.isNotEmpty) {
+            final lastPart = parts.last;
+            country = lastPart.split('@').first.toUpperCase();
+          }
+        }
+
         channels.add(Channel(
           name: name,
           url: line.trim(),
           logo: logo,
           group: group,
           id: id,
+          country: country,
         ));
 
         extinf = null;
