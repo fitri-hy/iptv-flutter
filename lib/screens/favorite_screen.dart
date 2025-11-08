@@ -30,7 +30,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   void _handleFavoriteToggle(Channel ch) {
     widget.onFavoriteToggle(ch);
-
     setState(() {
       _favorites.removeWhere((item) => item.url == ch.url);
     });
@@ -38,64 +37,63 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
-    final isDark = theme.brightness == Brightness.dark;
+    final appBarColor =
+        Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).primaryColor;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "My Favorite",
-          style: TextStyle(
-            color: theme.appBarTheme.foregroundColor ?? Colors.white,
-            fontWeight: FontWeight.bold,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: appBarColor,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: "Reload Favorites",
+            onPressed: () {
+              setState(() {
+                _favorites = List.from(widget.favorites);
+              });
+            },
           ),
-        ),
-        backgroundColor:
-        theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
-        iconTheme: IconThemeData(
-          color: theme.appBarTheme.foregroundColor ?? Colors.white,
-        ),
+        ],
       ),
       body: _favorites.isEmpty
-          ? Center(
-        child: Text(
-          "There are no favorite channels yet.",
-          style: TextStyle(
-            color: isDark ? Colors.white60 : Colors.black54,
-            fontSize: 16,
-          ),
-        ),
-      )
-          : Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: GridView.builder(
-          itemCount: _favorites.length,
-          gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            childAspectRatio: 1.1,
-          ),
-          itemBuilder: (context, i) {
-            final ch = _favorites[i];
-            final isFav = widget.favoriteIds.contains(ch.url);
-            return ChannelCard(
-              channel: ch,
-              isFavorite: isFav,
-              onFavoriteToggle: () => _handleFavoriteToggle(ch),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PlayerScreen(channel: ch),
-                ),
+          ? const Center(
+              child: Text(
+                "No favorite channels yet.",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-            );
-          },
-        ),
-      ),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GridView.builder(
+                itemCount: _favorites.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 1.1,
+                ),
+                itemBuilder: (context, i) {
+                  final ch = _favorites[i];
+                  final isFav = widget.favoriteIds.contains(ch.url);
+                  return ChannelCard(
+                    channel: ch,
+                    isFavorite: isFav,
+                    onFavoriteToggle: () => _handleFavoriteToggle(ch),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PlayerScreen(channel: ch),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

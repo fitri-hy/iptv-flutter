@@ -19,118 +19,116 @@ class ChannelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cardColor = theme.cardColor;
-    final textColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
     final isDark = theme.brightness == Brightness.dark;
+    final textColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(6),
-          boxShadow: [
-            BoxShadow(
-              color: isDark ? Colors.black54 : Colors.black12,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(6),
-                    topRight: Radius.circular(6),
-                  ),
-                  child: channel.logo.isNotEmpty
-                      ? CachedNetworkImage(
-                    imageUrl: channel.logo,
-                    httpHeaders: const {
-                      "User-Agent":
-                      "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-                    },
-                    width: double.infinity,
-                    height: 80,
-                    fit: BoxFit.contain,
-                    placeholder: (_, __) => SizedBox(
-                      width: double.infinity,
-                      height: 80,
-                      child: const Center(
-                        child: Icon(Icons.tv, size: 48, color: Colors.grey),
-                      ),
-                    ),
-                    errorWidget: (_, __, ___) => SizedBox(
-                      width: double.infinity,
-                      height: 80,
-                      child: const Center(
-                        child: Icon(Icons.tv, size: 48, color: Colors.grey),
-                      ),
-                    ),
-                  )
-                      : SizedBox(
-                    width: double.infinity,
-                    height: 80,
-                    child: const Center(
-                      child: Icon(Icons.tv, size: 48, color: Colors.grey),
-                    ),
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardHeight = constraints.maxWidth * 0.7;
+
+        return InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          splashColor: theme.colorScheme.primary.withOpacity(0.1),
+          highlightColor: Colors.transparent,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: isDark ? Colors.black26 : Colors.grey.withOpacity(0.15),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
                 ),
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: GestureDetector(
-                    onTap: onFavoriteToggle,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.black.withValues(alpha: 0.4)
-                            : Colors.white.withValues(alpha: 0.7),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.15),
-                            blurRadius: 3,
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: CachedNetworkImage(
+                        imageUrl: channel.logo,
+                        httpHeaders: const {
+                          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                        },
+                        width: double.infinity,
+                        height: cardHeight.clamp(80, 150),
+                        fit: BoxFit.contain,
+                        placeholder: (_, __) => Container(
+                          height: cardHeight.clamp(80, 150),
+                          color: isDark ? Colors.black12 : Colors.grey[100],
+                          child: const Center(
+                            child: Icon(Icons.tv, size: 48, color: Colors.grey),
                           ),
-                        ],
+                        ),
+                        errorWidget: (_, __, ___) => Container(
+                          height: cardHeight.clamp(80, 150),
+                          color: isDark ? Colors.black12 : Colors.grey[100],
+                          child: const Center(
+                            child: Icon(Icons.tv, size: 48, color: Colors.grey),
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite
-                            ? Colors.redAccent
-                            : (isDark ? Colors.white : Colors.black87),
-                        size: 18,
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: onFavoriteToggle,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.black.withOpacity(0.5)
+                                : Colors.white.withOpacity(0.8),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 3,
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite
+                                ? Colors.redAccent
+                                : (isDark ? Colors.white : Colors.black87),
+                            size: 20,
+                          ),
+                        ),
                       ),
+                    ),
+                  ],
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: Text(
+                    channel.name,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      height: 1.3,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                channel.name,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
