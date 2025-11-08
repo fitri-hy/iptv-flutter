@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class FilterModal extends StatefulWidget {
   final List<String> groups;
@@ -24,17 +26,38 @@ class _FilterModalState extends State<FilterModal> {
   late List<String> tempGroups;
   late List<String> tempCountries;
 
+  Map<String, String> countryMap = {};
+  List<Map<String, String>> countryList = [];
+
   @override
   void initState() {
     super.initState();
     tempGroups = List.from(widget.selectedGroups);
     tempCountries = List.from(widget.selectedCountries);
+    _loadCountryJson();
+  }
+
+  Future<void> _loadCountryJson() async {
+    try {
+      final String response = await rootBundle.loadString('assets/json/country.json');
+      final List data = json.decode(response);
+      setState(() {
+        countryList = data.map<Map<String, String>>((c) {
+          return {'code': c['code'], 'name': c['name']};
+        }).toList();
+        countryMap = {
+          for (var c in data) c['code']: c['name'],
+        };
+      });
+    } catch (e) {
+      debugPrint("Failed get countries.");
+    }
   }
 
   void _openMultiSelectModal(
     String title,
-    List<String> items,
-    List<String> selectedItems,
+    List<String> codes,
+    List<String> selectedCodes,
     ValueChanged<List<String>> onSelected,
   ) {
     final TextEditingController searchController = TextEditingController();
@@ -49,6 +72,12 @@ class _FilterModalState extends State<FilterModal> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (_) => StatefulBuilder(builder: (context, setModalState) {
+        final filteredCountries = countryList
+            .where((c) => c['name']!
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase()))
+            .toList();
+
         return Padding(
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Container(
@@ -63,7 +92,7 @@ class _FilterModalState extends State<FilterModal> {
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    hintText: "Search...",
+                    hintText: "Search country...",
                     prefixIcon: Icon(Icons.search, color: appBarColor),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(3),
@@ -84,32 +113,35 @@ class _FilterModalState extends State<FilterModal> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: ListView(
-                    children: items
-                        .where((item) => item
-                            .toLowerCase()
-                            .contains(searchController.text.toLowerCase()))
-                        .map(
-                          (item) => CheckboxListTile(
-                            title: Text(item),
-                            value: selectedItems.contains(item),
-                            activeColor: appBarColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            onChanged: (val) {
-                              setModalState(() {
-                                if (val == true) {
-                                  selectedItems.add(item);
-                                } else {
-                                  selectedItems.remove(item);
-                                }
-                              });
-                            },
-                          ),
-                        )
-                        .toList(),
-                  ),
+                  child: countryList.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          itemCount: filteredCountries.length,
+                          itemBuilder: (context, index) {
+                            final country = filteredCountries[index];
+                            final code = country['code']!;
+                            final name = country['name']!;
+                            final isSelected = selectedCodes.contains(code);
+
+                            return CheckboxListTile(
+                              title: Text(name),
+                              value: isSelected,
+                              activeColor: appBarColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              onChanged: (val) {
+                                setModalState(() {
+                                  if (val == true) {
+                                    selectedCodes.add(code);
+                                  } else {
+                                    selectedCodes.remove(code);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
                 ),
                 Center(
                   child: ElevatedButton(
@@ -122,7 +154,7 @@ class _FilterModalState extends State<FilterModal> {
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                     ),
                     onPressed: () {
-                      onSelected(selectedItems);
+                      onSelected(selectedCodes);
                       Navigator.pop(context);
                     },
                     child: const Text("Done"),
@@ -136,9 +168,9 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-  String _displaySelected(List<String> selected) {
-    if (selected.isEmpty) return "All";
-    return selected.join(", ");
+  String _displaySelected(List<String> selectedCodes) {
+    if (selectedCodes.isEmpty) return "All";
+    return selectedCodes.map((code) => countryMap[code] ?? code).join(", ");
   }
 
   @override
@@ -153,7 +185,7 @@ class _FilterModalState extends State<FilterModal> {
         children: [
           ListTile(
             title: const Text("Select Groups"),
-            subtitle: Text(_displaySelected(tempGroups)),
+            subtitle: Text(tempGroups.isEmpty ? "All" : tempGroups.join(", ")),
             trailing: Icon(Icons.arrow_forward_ios, color: appBarColor),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(3),
