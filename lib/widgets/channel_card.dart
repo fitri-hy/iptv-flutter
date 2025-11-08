@@ -108,22 +108,21 @@ class ChannelCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  child: Text(
-                    channel.name,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      height: 1.3,
-                    ),
-                  ),
-                ),
+				Padding(
+				  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+				  child: Text(
+					channel.name,
+					textAlign: TextAlign.center,
+					maxLines: 1,
+					overflow: TextOverflow.ellipsis,
+					style: TextStyle(
+					  color: textColor,
+					  fontWeight: FontWeight.w600,
+					  fontSize: 14,
+					  height: 1.3,
+					),
+				  ),
+				),
               ],
             ),
           ),
