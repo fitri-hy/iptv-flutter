@@ -87,7 +87,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PlayerScreen(channel: ch),
+                        builder: (_) => PlayerScreen(channelId: ch.url),
                       ),
                     ),
                   );

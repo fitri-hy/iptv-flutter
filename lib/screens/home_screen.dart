@@ -252,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => PlayerScreen(channel: ch),
+                                  builder: (_) => PlayerScreen(channelId: ch.url),
                                 ),
                               ),
                             );

@@ -7,6 +7,7 @@ class ChannelCard extends StatelessWidget {
   final VoidCallback onTap;
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
+  final double borderRadius;
 
   const ChannelCard({
     super.key,
@@ -14,6 +15,7 @@ class ChannelCard extends StatelessWidget {
     required this.onTap,
     required this.isFavorite,
     required this.onFavoriteToggle,
+    this.borderRadius = 3,
   });
 
   @override
@@ -28,7 +30,7 @@ class ChannelCard extends StatelessWidget {
 
         return InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(borderRadius),
           splashColor: theme.colorScheme.primary.withOpacity(0.1),
           highlightColor: Colors.transparent,
           child: AnimatedContainer(
@@ -36,7 +38,7 @@ class ChannelCard extends StatelessWidget {
             curve: Curves.easeOut,
             decoration: BoxDecoration(
               color: theme.cardColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(borderRadius),
               boxShadow: [
                 BoxShadow(
                   color: isDark ? Colors.black26 : Colors.grey.withOpacity(0.15),
@@ -51,7 +53,7 @@ class ChannelCard extends StatelessWidget {
                 Stack(
                   children: [
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
                       child: CachedNetworkImage(
                         imageUrl: channel.logo,
                         httpHeaders: const {
@@ -108,21 +110,21 @@ class ChannelCard extends StatelessWidget {
                     ),
                   ],
                 ),
-				Padding(
-				  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-				  child: Text(
-					channel.name,
-					textAlign: TextAlign.center,
-					maxLines: 1,
-					overflow: TextOverflow.ellipsis,
-					style: TextStyle(
-					  color: textColor,
-					  fontWeight: FontWeight.w600,
-					  fontSize: 14,
-					  height: 1.3,
-					),
-				  ),
-				),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: Text(
+                    channel.name,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
