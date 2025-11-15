@@ -9,6 +9,7 @@ import '../services/update_checker.dart';
 import '../models/channel.dart';
 import 'player_screen.dart';
 import 'favorite_screen.dart';
+import 'about_developer_screen.dart';
 import '../widgets/channel_card.dart';
 import '../widgets/theme_selector.dart';
 import '../widgets/filter_modal.dart';
@@ -167,21 +168,18 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           const ThemeSelector(),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            tooltip: "About Developer",
-            onPressed: () async {
-              final Uri url = Uri.parse('https://github.com/fitri-hy');
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url, mode: LaunchMode.externalApplication);
-              } else {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Could not launch URL')),
-                );
-              }
-            },
-          ),
+		  IconButton(
+		    icon: const Icon(Icons.info_outline),
+		    tooltip: "About Developer",
+		    onPressed: () {
+			  Navigator.push(
+			    context,
+			    MaterialPageRoute(
+				  builder: (_) => const AboutDeveloperScreen(),
+			    ),
+			  );
+		    },
+	  	  ),
         ],
       ),
       body: Stack(
@@ -192,28 +190,28 @@ class _HomeScreenState extends State<HomeScreen> {
 			    padding: const EdgeInsets.all(8.0),
 			    child: Row(
 				  children: [
-				    Expanded(
+					Expanded(
 					  child: TextField(
-					    decoration: InputDecoration(
-						  hintText: "Search channels...",
+						decoration: InputDecoration(
+						  hintText: "Search ${_channels.length} channels...",
 						  prefixIcon: Icon(Icons.search, color: appBarColor),
 						  border: OutlineInputBorder(
-						    borderRadius: BorderRadius.circular(3),
-						    borderSide: BorderSide(color: Colors.grey.shade400, width: 0.8),
+							borderRadius: BorderRadius.circular(3),
+							borderSide: BorderSide(color: Colors.grey.shade400, width: 0.8),
 						  ),
 						  enabledBorder: OutlineInputBorder(
-						    borderRadius: BorderRadius.circular(3),
-						    borderSide: BorderSide(color: Colors.grey.shade400, width: 0.8),
+							borderRadius: BorderRadius.circular(3),
+							borderSide: BorderSide(color: Colors.grey.shade400, width: 0.8),
 						  ),
 						  focusedBorder: OutlineInputBorder(
-						    borderRadius: BorderRadius.circular(3),
-						    borderSide: BorderSide(color: appBarColor, width: 1.2),
+							borderRadius: BorderRadius.circular(3),
+							borderSide: BorderSide(color: appBarColor, width: 1.2),
 						  ),
 						  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-					    ),
-					    onChanged: (val) => setState(() => _searchQuery = val),
+						),
+						onChanged: (val) => setState(() => _searchQuery = val),
 					  ),
-				    ),
+					),
 				    const SizedBox(width: 8),
 				    ElevatedButton.icon(
 					  style: ElevatedButton.styleFrom(
