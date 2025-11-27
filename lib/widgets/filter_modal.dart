@@ -45,9 +45,7 @@ class _FilterModalState extends State<FilterModal> {
         countryList = data.map<Map<String, String>>((c) {
           return {'code': c['code'], 'name': c['name']};
         }).toList();
-        countryMap = {
-          for (var c in data) c['code']: c['name'],
-        };
+        countryMap = { for (var c in data) c['code']: c['name'] };
       });
     } catch (e) {
       debugPrint("Failed get countries.");
@@ -56,8 +54,8 @@ class _FilterModalState extends State<FilterModal> {
 
   void _openMultiSelectModal(
     String title,
-    List<String> codes,
-    List<String> selectedCodes,
+    List<String> list,
+    List<String> selectedList,
     ValueChanged<List<String>> onSelected,
   ) {
     final TextEditingController searchController = TextEditingController();
@@ -72,10 +70,9 @@ class _FilterModalState extends State<FilterModal> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (_) => StatefulBuilder(builder: (context, setModalState) {
-        final filteredCountries = countryList
-            .where((c) => c['name']!
-                .toLowerCase()
-                .contains(searchController.text.toLowerCase()))
+        final filtered = list
+            .where((item) =>
+                item.toLowerCase().contains(searchController.text.toLowerCase()))
             .toList();
 
         return Padding(
@@ -92,7 +89,7 @@ class _FilterModalState extends State<FilterModal> {
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    hintText: "Search country...",
+                    hintText: "Search...",
                     prefixIcon: Icon(Icons.search, color: appBarColor),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(3),
@@ -113,35 +110,31 @@ class _FilterModalState extends State<FilterModal> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: countryList.isEmpty
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView.builder(
-                          itemCount: filteredCountries.length,
-                          itemBuilder: (context, index) {
-                            final country = filteredCountries[index];
-                            final code = country['code']!;
-                            final name = country['name']!;
-                            final isSelected = selectedCodes.contains(code);
+                  child: ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final item = filtered[index];
+                      final isSelected = selectedList.contains(item);
 
-                            return CheckboxListTile(
-                              title: Text(name),
-                              value: isSelected,
-                              activeColor: appBarColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                              onChanged: (val) {
-                                setModalState(() {
-                                  if (val == true) {
-                                    selectedCodes.add(code);
-                                  } else {
-                                    selectedCodes.remove(code);
-                                  }
-                                });
-                              },
-                            );
-                          },
+                      return CheckboxListTile(
+                        title: Text(item),
+                        value: isSelected,
+                        activeColor: appBarColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3),
                         ),
+                        onChanged: (val) {
+                          setModalState(() {
+                            if (val == true) {
+                              selectedList.add(item);
+                            } else {
+                              selectedList.remove(item);
+                            }
+                          });
+                        },
+                      );
+                    },
+                  ),
                 ),
                 Center(
                   child: ElevatedButton(
@@ -154,7 +147,7 @@ class _FilterModalState extends State<FilterModal> {
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                     ),
                     onPressed: () {
-                      onSelected(selectedCodes);
+                      onSelected(selectedList);
                       Navigator.pop(context);
                     },
                     child: const Text("Done"),
@@ -168,7 +161,7 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-  String _displaySelected(List<String> selectedCodes) {
+  String _displaySelectedCountries(List<String> selectedCodes) {
     if (selectedCodes.isEmpty) return "All";
     return selectedCodes.map((code) => countryMap[code] ?? code).join(", ");
   }
@@ -200,14 +193,14 @@ class _FilterModalState extends State<FilterModal> {
           const SizedBox(height: 8),
           ListTile(
             title: const Text("Select Countries"),
-            subtitle: Text(_displaySelected(tempCountries)),
+            subtitle: Text(_displaySelectedCountries(tempCountries)),
             trailing: Icon(Icons.arrow_forward_ios, color: appBarColor),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(3),
             ),
             onTap: () => _openMultiSelectModal(
               "Select Countries",
-              widget.countries,
+              widget.countries.map((c) => countryMap[c] ?? c).toList(),
               tempCountries,
               (selected) => setState(() => tempCountries = List.from(selected)),
             ),
@@ -222,8 +215,7 @@ class _FilterModalState extends State<FilterModal> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(3),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               ),
               onPressed: () {
                 widget.onApply(tempGroups, tempCountries);
